@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", ui-sans-serif, system-ui;
+  --font-jetbrains: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html, body {
+  background: #0A0A0F;
+  color: #F5F5F7;
+  font-feature-settings: "cv11", "ss01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(124, 92, 255, 0.35);
+  color: #fff;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #22222E;
+  border-radius: 8px;
+  border: 2px solid #0A0A0F;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2D2D3D;
+}
+
+/* Ambient background grid */
+.ambient-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* Radial spotlight */
+.spotlight {
+  background: radial-gradient(circle at 20% 0%, rgba(124,92,255,0.12) 0%, transparent 45%),
+              radial-gradient(circle at 85% 10%, rgba(0,217,255,0.06) 0%, transparent 40%);
+}
+
+/* Glass card */
+.glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.025) 0%, rgba(255,255,255,0.005) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Animated gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #F5F5F7 0%, #B8AEFF 50%, #00D9FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-brand {
+  background: linear-gradient(135deg, #7C5CFF 0%, #00D9FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Shimmer skeleton */
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2.5s linear infinite;
+}
+
+/* Card lift */
+.card-lift {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 220ms ease;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Focus ring */
+.ring-brand {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: outline-color 150ms ease;
+}
+.ring-brand:focus-visible {
+  outline-color: #7C5CFF;
+}
+
+/* State accent bars */
+.accent-stable { box-shadow: inset 3px 0 0 0 #22D682; }
+.accent-watch  { box-shadow: inset 3px 0 0 0 #FFB547; }
+.accent-risk   { box-shadow: inset 3px 0 0 0 #FF5C5C; }
+
+/* Severity dot pulse */
+@keyframes ring-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 92, 92, 0.4); }
+  100% { box-shadow: 0 0 0 8px rgba(255, 92, 92, 0); }
+}
+.pulse-risk {
+  animation: ring-pulse 1.6s ease-out infinite;
+}
