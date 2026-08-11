@@ -11,3 +11,9 @@ yarn-debug.log*
 yarn-error.log*
 .vercel
 next-env.d.ts
+
+# Local file-backed datastore, seeded at runtime
+/data/
+
+# TypeScript incremental build info
+*.tsbuildinfo
