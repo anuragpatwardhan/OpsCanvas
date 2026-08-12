@@ -82,9 +82,18 @@ have. Any connector without credentials simply stays inactive:
 npm test
 ```
 
-45 cases across the signal and snapshot engines: rule thresholds and the conditions that
-must *not* fire, health and trend derivation, the review-backlog fallback, team load
-banding, and thread grouping and ordering.
+68 cases:
+
+- **Signal engine** — rule thresholds and, just as importantly, the conditions that must
+  *not* fire.
+- **Snapshot engine** — health and trend derivation, the review-backlog fallback, team
+  load banding, and thread grouping and ordering.
+- **Connectors** — the rule that mock data never mixes with real data, which credentials
+  each source requires, GitHub payload normalisation including ticket-key extraction from
+  a title or branch, and that one failing repository never costs another its events.
+
+Connector tests re-import the module with the environment already set, because each
+connector reads its credentials into a module-level constant at import time.
 
 ## Scripts
 
