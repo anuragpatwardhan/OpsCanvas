@@ -52,6 +52,29 @@ UI renders:
 All three are pure functions of their inputs, which is what makes them straightforward
 to test.
 
+**Acknowledgements** (`lib/acknowledgements.ts`) let a signal be muted once it has been
+seen — either indefinitely or snoozed for a set number of hours.
+
+Signals are recomputed from scratch on every ingestion cycle, so an acknowledgement
+cannot live on the signal itself. It is stored separately and keyed by signal id, which
+each rule derives from the underlying entity (`sig_review_<pr>`, `sig_stale_<ticket>`)
+rather than generating fresh each run. That stable identity is what lets a snooze
+survive a resync.
+
+Expiries are absolute timestamps, not durations, so a snooze cannot silently extend
+itself every time the datastore reloads — and a lapsed one simply stops matching, with
+no cleanup job needed for the signal to reappear. Each ingestion cycle prunes
+acknowledgements that have expired or whose signal has stopped firing, so the store does
+not grow as PRs and tickets come and go.
+
+| Endpoint | Does |
+| --- | --- |
+| `POST /api/signals/:id/ack` | mute a signal; `{"hours": 4}` to snooze, empty body for indefinite |
+| `DELETE /api/signals/:id/ack` | bring it back |
+| `GET /api/signals?acknowledged=include` | include muted signals, flagged rather than hidden |
+
+Snoozes are capped at 30 days, so a real problem cannot be buried for years.
+
 ## Data
 
 State lives in a JSON file under `data/`, written by `lib/store.ts`. That keeps the
@@ -82,7 +105,7 @@ have. Any connector without credentials simply stays inactive:
 npm test
 ```
 
-68 cases:
+113 cases:
 
 - **Signal engine** — rule thresholds and, just as importantly, the conditions that must
   *not* fire.
@@ -91,6 +114,12 @@ npm test
 - **Connectors** — the rule that mock data never mixes with real data, which credentials
   each source requires, GitHub payload normalisation including ticket-key extraction from
   a title or branch, and that one failing repository never costs another its events.
+- **Acknowledgements** — expiry boundaries, a snoozed signal returning once its window
+  lapses, pruning of stale entries, and that an acknowledgement for a signal that is no
+  longer firing is ignored.
+- **Ack endpoints** — duration validation and the 30-day cap, re-acknowledging replacing
+  rather than stacking, 404s for unknown signals, and that a rejected request never
+  writes to disk.
 
 Connector tests re-import the module with the environment already set, because each
 connector reads its credentials into a module-level constant at import time.
