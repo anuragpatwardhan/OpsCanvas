@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type {
+  Acknowledgement,
   Project,
   ProjectSnapshot,
   Signal,
@@ -16,6 +17,7 @@ interface StoreState {
   snapshots: ProjectSnapshot[];
   threads: WorkThread[];
   teamLoad: TeamLoadSnapshot;
+  acknowledgements: Acknowledgement[];
   lastSyncAt: string | null;
 }
 
@@ -36,6 +38,7 @@ function emptyState(): StoreState {
     snapshots: [],
     threads: [],
     teamLoad: { state: "balanced", members: [], averageThreads: 0, reviewBacklog: 0 },
+    acknowledgements: [],
     lastSyncAt: null,
   };
 }
@@ -46,7 +49,10 @@ export function getStore(): StoreState {
   if (fs.existsSync(DB_FILE)) {
     try {
       const raw = fs.readFileSync(DB_FILE, "utf-8");
-      state = JSON.parse(raw) as StoreState;
+      const loaded = JSON.parse(raw) as Partial<StoreState>;
+      // Fill in fields added after this file was written, so a datastore from an
+      // earlier version loads instead of throwing on first access.
+      state = { ...emptyState(), ...loaded };
       return state;
     } catch {
       state = emptyState();
@@ -115,6 +121,25 @@ export const repo = {
     get: () => getStore().teamLoad,
     set: (t: TeamLoadSnapshot) => {
       getStore().teamLoad = t;
+    },
+  },
+  acknowledgements: {
+    all: () => getStore().acknowledgements,
+    forSignal: (signalId: string) =>
+      getStore().acknowledgements.find((a) => a.signalId === signalId),
+    /** One acknowledgement per signal, so re-snoozing replaces rather than stacks. */
+    upsert: (ack: Acknowledgement) => {
+      const s = getStore();
+      s.acknowledgements = [...s.acknowledgements.filter((a) => a.signalId !== ack.signalId), ack];
+    },
+    remove: (signalId: string) => {
+      const s = getStore();
+      const before = s.acknowledgements.length;
+      s.acknowledgements = s.acknowledgements.filter((a) => a.signalId !== signalId);
+      return s.acknowledgements.length < before;
+    },
+    replaceAll: (items: Acknowledgement[]) => {
+      getStore().acknowledgements = items;
     },
   },
   meta: {

@@ -2,6 +2,7 @@ import { repo, persist } from "./store";
 import { activeConnectors } from "./connectors";
 import { evaluateSignals } from "./signalEngine";
 import { computeSnapshots, computeTeamLoad, computeThreads } from "./snapshotEngine";
+import { pruneAcknowledgements } from "./acknowledgements";
 import { projects as seedProjects } from "./seed";
 import type { NormalizedEvent, Project, Signal } from "./types";
 
@@ -83,6 +84,13 @@ export async function runIngestionCycle(): Promise<{
   const rawSignals = evaluateSignals(events);
   const signals = enrichSignals(rawSignals, events, projects);
   repo.signals.replaceAll(signals);
+
+  // Acknowledgements outlive a resync because signal ids are derived from the
+  // underlying PR or ticket. Drop the ones that expired or whose signal stopped
+  // firing, so the store does not accumulate them as work comes and goes.
+  repo.acknowledgements.replaceAll(
+    pruneAcknowledgements(repo.acknowledgements.all(), new Set(signals.map((s) => s.id)))
+  );
 
   const snapshots = computeSnapshots(projects, events, signals);
   repo.snapshots.replaceAll(snapshots);
