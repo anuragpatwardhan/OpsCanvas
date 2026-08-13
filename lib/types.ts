@@ -34,6 +34,19 @@ export interface Signal {
   links: { label: string; href: string; source: Source }[];
   createdAt: string;
   suggestedAction?: string;
+  /** Set when an active acknowledgement covers this signal. */
+  acknowledged?: boolean;
+  /** ISO expiry of that acknowledgement, or null if it does not expire. */
+  acknowledgedUntil?: string | null;
+}
+
+export interface Acknowledgement {
+  signalId: string;
+  /** ISO timestamp the snooze lapses, or null to acknowledge indefinitely. */
+  until: string | null;
+  note?: string;
+  actor: string;
+  createdAt: string;
 }
 
 export interface ProjectSnapshot {
