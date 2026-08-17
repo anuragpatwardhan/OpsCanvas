@@ -105,7 +105,7 @@ have. Any connector without credentials simply stays inactive:
 npm test
 ```
 
-113 cases:
+123 cases:
 
 - **Signal engine** — rule thresholds and, just as importantly, the conditions that must
   *not* fire.
@@ -114,6 +114,10 @@ npm test
 - **Connectors** — the rule that mock data never mixes with real data, which credentials
   each source requires, GitHub payload normalisation including ticket-key extraction from
   a title or branch, and that one failing repository never costs another its events.
+- **Jira connector** — one issue producing a creation event and, only when it has actually
+  moved, a separate status change; the reporter credited for creation and the assignee for
+  the update; an unassigned ticket falling back to `unknown` rather than inventing a
+  person; and distinct event ids, since a collision would make `appendMany` drop one.
 - **Acknowledgements** — expiry boundaries, a snoozed signal returning once its window
   lapses, pruning of stale entries, and that an acknowledgement for a signal that is no
   longer firing is ignored.
