@@ -105,7 +105,7 @@ have. Any connector without credentials simply stays inactive:
 npm test
 ```
 
-123 cases:
+168 cases:
 
 - **Signal engine** — rule thresholds and, just as importantly, the conditions that must
   *not* fire.
@@ -124,6 +124,16 @@ npm test
 - **Ack endpoints** — duration validation and the 30-day cap, re-acknowledging replacing
   rather than stacking, 404s for unknown signals, and that a rejected request never
   writes to disk.
+
+- **Slack connector** — mainly what it *refuses* to emit, since a false incident drags a
+  project's health to risk: an unthreaded remark about an outage is chatter, and a thread
+  with no incident wording is not an incident. Plus epoch-to-ISO conversion, the `unknown`
+  actor fallback for bot messages, Slack's application-level `ok: false` (which arrives
+  over HTTP 200), and the channel hash being stripped rather than URL-encoded.
+- **Store** — the migration path where a datastore written before a field existed still
+  loads, a corrupt file falling back to empty rather than crashing, `appendMany`
+  de-duplicating by id so re-fetched windows do not double the counts, and that signals,
+  snapshots and threads are wholesale replacements rather than merges.
 
 Connector tests re-import the module with the environment already set, because each
 connector reads its credentials into a module-level constant at import time.
