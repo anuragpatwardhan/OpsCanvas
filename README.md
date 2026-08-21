@@ -105,7 +105,7 @@ have. Any connector without credentials simply stays inactive:
 npm test
 ```
 
-168 cases:
+187 cases:
 
 - **Signal engine** — rule thresholds and, just as importantly, the conditions that must
   *not* fire.
@@ -134,6 +134,13 @@ npm test
   loads, a corrupt file falling back to empty rather than crashing, `appendMany`
   de-duplicating by id so re-fetched windows do not double the counts, and that signals,
   snapshots and threads are wholesale replacements rather than merges.
+
+- **Signal enrichment** — the deep links a signal offers, and more importantly when it
+  declines to offer one, since a link to the wrong PR is worse than no link. Evidence
+  citing a PR number that was never ingested produces nothing; a PR event from another
+  project or a non-GitHub source is ignored; the Jira host falls back to a default when
+  unset; and the Slack archive URL strips the channel hash and the timestamp dot, which
+  is the format Slack actually expects.
 
 Connector tests re-import the module with the environment already set, because each
 connector reads its credentials into a module-level constant at import time.

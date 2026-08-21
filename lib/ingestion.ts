@@ -6,7 +6,19 @@ import { pruneAcknowledgements } from "./acknowledgements";
 import { projects as seedProjects } from "./seed";
 import type { NormalizedEvent, Project, Signal } from "./types";
 
-function enrichSignals(rawSignals: Signal[], events: NormalizedEvent[], projects: Project[]): Signal[] {
+/**
+ * Attach the deep links a signal should offer, derived by matching its evidence
+ * strings back to the events that produced it.
+ *
+ * Exported for testing: it is a pure function and the link building is the part
+ * a user actually clicks, so it is worth exercising directly rather than only
+ * through a full ingestion cycle.
+ */
+export function enrichSignals(
+  rawSignals: Signal[],
+  events: NormalizedEvent[],
+  projects: Project[]
+): Signal[] {
   return rawSignals.map((sig) => {
     const project = projects.find((p) => p.id === sig.projectId);
     const links: Signal["links"] = [];
